@@ -9,6 +9,10 @@ SQL_DIR = Path(__file__).parent / "sql"
 
 def init_db():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    # Supprime l'ancienne base pour repartir propre
+    if DB_PATH.exists():
+        DB_PATH.unlink()
+
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
 
@@ -20,13 +24,33 @@ def init_db():
     with open(SQL_DIR / "data.sql", encoding="utf-8") as f:
         conn.executescript(f.read())
 
-    # Vues
-    with open(SQL_DIR / "queries.sql", encoding="utf-8") as f:
-        content = f.read()
-        for statement in content.split(";"):
-            stmt = statement.strip()
-            if stmt.upper().startswith("CREATE VIEW"):
-                conn.execute(stmt)
+    # Vues (exécution séparée et sûre)
+    conn.execute("""
+        CREATE VIEW IF NOT EXISTS v_emprunts_en_cours AS
+        SELECT 
+            e.id,
+            l.titre,
+            a.nom || ' ' || a.prenom AS auteur,
+            em.nom || ' ' || em.prenom AS emprunteur,
+            e.date_emprunt,
+            e.date_retour_prevue
+        FROM emprunts e
+        JOIN livres l ON e.livre_id = l.id
+        JOIN auteurs a ON l.auteur_id = a.id
+        JOIN emprunteurs em ON e.emprunteur_id = em.id
+        WHERE e.date_retour_effective IS NULL
+    """)
+
+    conn.execute("""
+        CREATE VIEW IF NOT EXISTS v_stats_auteurs AS
+        SELECT 
+            a.id,
+            a.nom || ' ' || a.prenom AS auteur,
+            COUNT(l.id) AS nombre_livres
+        FROM auteurs a
+        LEFT JOIN livres l ON a.id = l.auteur_id
+        GROUP BY a.id
+    """)
 
     conn.commit()
     return conn
