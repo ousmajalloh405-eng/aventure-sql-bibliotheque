@@ -8,35 +8,53 @@
 
 ---
 
-## Problème métier
+## 1. Problème métier
 
-Modéliser et interroger un système de gestion de bibliothèque :
-- Auteurs
-- Livres
-- Emprunteurs (lecteurs)
-- Emprunts (avec dates d’emprunt et de retour)
+Modéliser et interroger un système de gestion de bibliothèque permettant de suivre les livres, les auteurs, les emprunteurs et les emprunts.
 
-## Structure de la base
+## 2. Architecture de la base
 
 ```
-auteurs (id, nom, prenom, nationalite, date_naissance)
-livres (id, titre, annee_publication, categorie, auteur_id)
-emprunteurs (id, nom, prenom, email, date_inscription)
-emprunts (id, livre_id, emprunteur_id, date_emprunt, date_retour_prevue, date_retour_effective)
+          auteurs
+             │
+             │ 1
+             │
+             ▼ N
+          livres
+             │
+             │ 1
+             │
+             ▼ N
+         emprunts ◀──── N emprunteurs
 ```
 
-Relations :
-- Un auteur peut avoir plusieurs livres
-- Un livre peut être emprunté plusieurs fois
-- Un emprunteur peut emprunter plusieurs livres
+**Tables** :
+- `auteurs` → qui a écrit le livre
+- `livres` → les ouvrages
+- `emprunteurs` → les lecteurs
+- `emprunts` → qui a emprunté quoi et quand
 
-## Technologies
+## 3. Structure du projet
 
-- SQLite (fichier local, aucune installation serveur)
+```
+aventure-sql-bibliotheque/
+├── sql/
+│   ├── schema.sql     # Tables + index
+│   ├── data.sql       # Données fictives
+│   └── queries.sql    # Vues + requêtes
+├── data/
+│   └── bibliotheque.db
+├── main.py           # Démonstration
+└── README.md
+```
+
+## 4. Technologies
+
+- SQLite (fichier local)
 - Python 3 (script de démonstration)
-- SQL standard (compatible avec la plupart des SGBD)
+- SQL standard
 
-## Installation et exécution
+## 5. Installation et exécution
 
 ```bash
 git clone https://github.com/ousmajalloh405-eng/aventure-sql-bibliotheque.git
@@ -44,46 +62,15 @@ cd aventure-sql-bibliotheque
 python3 main.py
 ```
 
-Le script :
-1. Crée la base `data/bibliotheque.db`
-2. Charge le schéma, les données et les vues
-3. Exécute les requêtes d’exemple
+## 6. Requêtes et vues fournies
 
-## Fichiers SQL
+- Livres empruntés cette semaine
+- Auteur avec le plus de livres
+- Emprunteurs les plus actifs
+- Vue `v_emprunts_en_cours`
+- Vue `v_stats_auteurs`
 
-| Fichier | Contenu |
-|---------|---------|
-| `sql/schema.sql` | Tables + index |
-| `sql/data.sql` | Données fictives |
-| `sql/queries.sql` | Vues + requêtes utiles |
-
-## Requêtes principales
-
-1. **Livres empruntés cette semaine**
-2. **Auteur ayant publié le plus de livres**
-3. **Emprunteurs les plus actifs sur une période**
-4. **Emprunts en cours** (via vue)
-5. **Livres jamais empruntés**
-
-## Vues créées
-
-- `v_emprunts_en_cours` : emprunts non retournés
-- `v_stats_auteurs` : nombre de livres par auteur
-
-## Index
-
-- Sur `date_emprunt`, `livre_id`, `emprunteur_id`, `auteur_id`
-
-## Notions travaillées
-
-- Modélisation relationnelle (tables, clés primaires/étrangères)
-- Insertion de données
-- Requêtes SELECT avec JOIN, WHERE, GROUP BY, ORDER BY
-- Vues SQL
-- Index pour l’optimisation
-- Utilisation de SQLite depuis Python
-
-## Compétences pour le CV
+## 7. Compétences pour le CV
 
 Conception et interrogation d’une base de données relationnelle pour un système de gestion de bibliothèque (schéma, données, requêtes, vues, index).
 
